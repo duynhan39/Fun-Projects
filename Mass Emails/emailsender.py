@@ -10,7 +10,7 @@ from email.mime.text import MIMEText
 
 
 MY_ADDRESS = 'ps128@evansville.edu'
-PASSWORD = 'Fazendeiro8!'
+PASSWORD = ''
 
 def get_contacts(info, idcode):
     names = []
