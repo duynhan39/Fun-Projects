@@ -1,0 +1,57 @@
+<head>
+<style>
+  a {
+    text-decoration: none;
+    color:#77E4F2;
+    font-size: 100%;
+  }
+
+  /* mouse over link */
+  a:hover {
+    color: #0887E8;
+  }
+
+  </style>
+</head>
+
+<body style="background-color:#02243E;padding-left:5%;">
+
+  <font face="Bebas Neue" color="1CCDE3" size=200%>
+    <a>
+      <%= link_to 'Home', welcome_index_path %> 
+      <%= link_to '/Athletes List', controller: 'athletes' %>
+      <%= link_to '/'+@athlete.name %>
+      <div style="padding:40%;display: inline">
+      <%= link_to 'Edit', edit_athlete_path(@athlete) %>
+      </div>
+    </a>
+  </font>
+
+  <br>
+
+  <font face="avenir" color=white style="font-size:150%">
+   <p>
+     <strong>Name:</strong>
+     <%= @athlete.name %>
+   </p>
+
+    <p>
+      <strong>Email:</strong>
+      <%= @athlete.email %>
+    </p>
+
+    <p>
+    <strong>Phone:</strong>
+      <%= @athlete.phone %>
+    </p>
+  </font>
+
+  <font face="Bebas Neue" color="1CCDE3" size=200%>
+  <td><%= link_to 'Delete', athlete_path(@athlete),
+                 method: :delete,
+                 data: { confirm: 'Are you sure?' } %></td>
+  </font>
+</body>
+
+
+

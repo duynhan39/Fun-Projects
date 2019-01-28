@@ -1,0 +1,29 @@
+<p>
+<strong> Your Response was: </strong>
+</p>
+
+<p>
+  <strong>Student Name: </strong>
+  <%= @fmorning.stdName%>
+</p>
+
+<p>
+  <strong>Urine Color: </strong>
+  <%= @fmorning.urineCol%>
+</p>
+
+<p>
+  <strong>Total Sleep time: </strong>
+  <%=@fmorning.sleepTime%>
+</p>
+
+<p>
+  <strong>Body Soreness: </strong>
+  <%=@fmorning.bodySoreness%>
+</p>
+
+<p>
+<strong> Response Submitted Thank you </strong>
+</p>
+
+<%= link_to 'Back to Forms page', controller: 'forms' %>

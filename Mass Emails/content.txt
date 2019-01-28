@@ -1,0 +1,6 @@
+Dear ${PERSON_NAME},
+Here is your individual access code to use Stengths Finders. Please follow this link: www.StrengthsQuest.com , press "Redeem Access Code" and enter the code assigned to you.
+It should not take more than 30 minutes and it will be very rewarding for yourself and your team. It is very important that you complete it before coming to the workshop on Saturday.
+Code: ${CODE}
+Cheers,
+Patrick

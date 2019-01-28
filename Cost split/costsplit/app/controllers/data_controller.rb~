@@ -1,0 +1,8 @@
+class DataController < ApplicationController
+  def index
+  end
+
+  def fmorning_data
+  end
+ 
+end

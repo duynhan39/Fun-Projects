@@ -1,0 +1,2 @@
+class Textstring < ApplicationRecord
+end

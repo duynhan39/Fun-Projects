@@ -1,0 +1,9 @@
+wb = xlsx_package.workbook
+wb.add_worksheet(name: "Factivity") do |sheet|
+	
+	sheet.add_row ["Name", "Activity", "Exertion", "Submit Time"] 
+	
+	@factivity.each do |factivity|
+	sheet.add_row [factivity.stdName, factivity.activity, factivity.exertion, 		factivity.created_at.in_time_zone("Eastern Time (US & Canada)").strftime("%m/%d/%Y %H:%M")]
+	end
+end

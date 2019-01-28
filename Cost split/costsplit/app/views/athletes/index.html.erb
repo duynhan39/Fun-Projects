@@ -1,0 +1,78 @@
+<head>
+<style>
+  a {
+    text-decoration: none;
+    color:#77E4F2;
+    font-size: 100%;
+  }
+
+  /* mouse over link */
+  a:hover {
+    color: #0887E8;
+  }
+
+  a.listing {
+    color: white;
+  }
+  a.listing:hover {
+    color: #77E4F2;
+  }
+
+  tr {
+    color: white;
+    font-size: 120%;
+  }
+
+  table {
+    color: white;
+    font-size: 120%;
+    width: 100%;
+    text-align: left;
+  }
+  
+  </style>
+</head>
+
+<body style="background-color:#02243E;padding-left:5%;">
+  <font face="Bebas Neue" color="1CCDE3" size=200%>
+    <a>
+      <%= link_to 'Home', welcome_index_path %>
+      <%= link_to '/Athletes List', controller: 'athletes' %>
+    </a>
+  </font>
+  <br><br>
+
+  <font face="avenir">
+
+  <table>
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Phone</th>
+    </tr>
+
+    <% @athletes.each do |athlete| %>
+      <tr class="l">
+        <td><%= link_to athlete.name , athlete_path(athlete) %></td>
+        <td><%= athlete.email %></td>
+        <td><%= athlete.phone %></td>
+        <td><%= link_to 'Edit', edit_athlete_path(athlete) %></td>
+        <td><%= link_to 'Delete', athlete_path(athlete),
+                method: :delete,
+                data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+
+  </table>
+
+  <br>
+  
+  </font>    
+  <font face="Bebas Neue" color=white style="padding:0.5%;font-size:150%">
+    <%= link_to 'Add+', new_athlete_path %>
+  </font>
+
+
+</body>
+
+

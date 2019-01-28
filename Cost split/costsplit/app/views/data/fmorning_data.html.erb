@@ -1,0 +1,68 @@
+<head>
+<style>
+  a {
+    text-decoration: none;
+    color:white;
+    font-size: 100%;
+  }
+
+  /* mouse over link */
+  a:hover {
+    color: #0887E8;
+  }
+
+  table {
+    color: white;
+    font-size: 120%;
+    width: 100%;
+    text-align: left;
+    font-family: "avenir"
+  }
+
+  </style>
+</head>
+
+<body style="background-color:#02243E;padding-left:5%;padding-right:5%;">
+
+  <font face="Bebas Neue" color="1CCDE3" size=200%>
+    <a>
+      <%= link_to 'Home', welcome_index_path %>
+      <%= link_to '/Data', controller: 'data' %>
+      <%= link_to '/Morning Form Data' %>
+    </a>
+  </font>
+  
+  <br><br>
+  <table cellspacing="0" cellpadding="3">
+    <tr>
+      <th align = "left"> Name </th>
+      <th align = "left"> Urine Color </th>
+      <th align = "left"> Total Sleep Time </th>
+      <th align = "left"> Body Soreness </th>
+      <th align = "left"> Submitted Time </th>
+      <th align = "left"> Calculation </th>
+    </tr>
+
+    <% @fmorning.each do |fmorning| %>
+    <tr> 
+      <td align = "left"><%= fmorning.stdName %></td>
+      <td align = "center"><%= fmorning.urineCol %></td>
+      <td align = "center"><%= fmorning.sleepTime %></td>
+      <td align = "center"><%= fmorning.bodySoreness %></td>
+      <td align = "left"><%= fmorning.created_at.in_time_zone("Eastern Time (US & Canada)").strftime("%m/%d/%Y %H:%M")%></td>
+      <td align = "left"><%=   %></td>
+      <td align = "left"><%= link_to 'Delete', fmorning_path(fmorning),
+			   method: :delete,
+			   data: {confirm: 'Are you sure?'}%> </td>
+    </tr>
+  
+    <% end %>
+  </table>
+
+  <br>
+
+  <font face="Bebas Neue" color=white style="font-size:150%">
+   <%= link_to "Export as Spreadsheet", data_fmorning_data_path(format: "xlsx") %>
+  </font>
+</body>
+

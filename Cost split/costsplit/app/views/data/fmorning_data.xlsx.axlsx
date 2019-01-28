@@ -1,0 +1,11 @@
+wb = xlsx_package.workbook
+
+wb.add_worksheet(name: "Fmorning") do |sheet|
+  sheet.add_row ["Name", "Urine Color", "Total Sleep Time", "Body Soreness", "Submit Time"]
+  
+  @fmorning.each do |fmorning|
+    sheet.add_row [fmorning.stdName, fmorning.urineCol, fmorning.sleepTime, fmorning.bodySoreness,
+fmorning.created_at.in_time_zone("Eastern Time (US & Canada)").strftime("%m/%d/%Y %H:%M")]
+  end		  
+	end		
+  

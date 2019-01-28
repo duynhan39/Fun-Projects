@@ -1,0 +1,2 @@
+module FmorningHelper
+end

@@ -1,0 +1,2 @@
+class ActivityForm < ApplicationRecord
+end
