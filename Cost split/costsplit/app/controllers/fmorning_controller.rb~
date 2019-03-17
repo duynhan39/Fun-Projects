@@ -1,6 +1,0 @@
-class FmorningController < ApplicationController
-
-  def new
-  end
-  
-end

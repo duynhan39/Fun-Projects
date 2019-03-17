@@ -1,9 +1,0 @@
-# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-one:
-  activity: MyString
-  exertion: 1
-
-two:
-  activity: MyString
-  exertion: 1

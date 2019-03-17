@@ -1,9 +1,0 @@
-# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-one:
-  stdName: MyString
-  calculation: 1.5
-
-two:
-  stdName: MyString
-  calculation: 1.5

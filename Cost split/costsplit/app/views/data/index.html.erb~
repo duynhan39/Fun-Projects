@@ -1,5 +1,0 @@
-<h1>Data index</h1>
-<%= link_to 'Morning Form Data', controller: 'data_fmorning_data'  %>
-<br>
-<br>
-<%= link_to 'Activity Form Data', data_fmorning_data_path %>

@@ -1,2 +1,0 @@
-class Textstring < ApplicationRecord
-end

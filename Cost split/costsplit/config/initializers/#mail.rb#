@@ -1,6 +1,0 @@
-ActionMailer::Base.sendmail_settings = {
-  location: "/usr/sbin/sendmail",
-  arguments: '-i -t'
-}
-
-ActionMailer::Base.delivery_

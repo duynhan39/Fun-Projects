@@ -1,6 +1,0 @@
-# CRUD operations go here
-
-class AdminController < ApplicationController
-  def new
-  end
-end
