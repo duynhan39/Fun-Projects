@@ -1,0 +1,343 @@
+#!/usr/local/bin/python
+
+import sys
+import os
+import urllib2
+import json
+
+data = {}
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+##########################
+def  getWorkSpace():
+    
+    f = open('/Users/duynhan/.tools/WorkSpace/.sys/data.txt', 'r')
+    info = f.read()
+    
+    data = json.loads(info)
+    f.close()
+    return data["data"]
+
+##########################
+def printWindows(workSpace, flag="default"):
+    for index in range(len(workSpace)):
+        sWindow = "\r  ["+str(index+1)+"] "
+        if workSpace[index]["application"] != "":
+            sWindow += "App: \"" + workSpace[index]["application"] + "\" "
+        sWindow += "dir: "+workSpace[index]["dir"]
+        print "  ", sWindow
+
+##########################
+def openWorkSpace(args):
+    global data
+    if len(args) != 2:
+        print bcolors.YELLOW + "\r  syntax: open <WorkSpace name>" + bcolors.ENDC
+        return
+        
+    workSpaceName = args[1]
+    if workSpaceName not in data:
+        print bcolors.YELLOW + "\rWork Space", workSpaceName, "does not exist."
+        print "[help] for more about functions" + bcolors.ENDC
+        return
+        
+    print bcolors.OKBLUE + "\r  Work Space: ", workSpaceName + bcolors.ENDC
+    for eWindow in data[workSpaceName]:
+        osCommand = "open "
+        if eWindow["application"] != "":
+            osCommand += "-a \"" + eWindow["application"] + "\" "
+        osCommand += processSpace(eWindow["dir"])
+        print "  ", osCommand
+        os.system(osCommand)
+
+    return
+
+##########################
+def addWorkSpace(args):
+    global data
+    if len(args) != 2:
+        print bcolors.YELLOW + "\r  syntax: add <WorkSpace name>" + bcolors.ENDC
+        return
+            
+    workSpaceName = args[1]
+    if workSpaceName in data:
+        print bcolors.YELLOW + "Work Space", workSpaceName, "already exist."
+        print "[help] for more about functions" + bcolors.ENDC
+        return
+
+    newWorkSpace = ",\""+workSpaceName+"\":["
+            
+    while True:
+        print "Application: ",
+        app = sys.stdin.readline()[:-1]
+        print "Directory: ",
+        dir = sys.stdin.readline()[:-1]
+        if dir == "":
+            if newWorkSpace[-1:] == ",":
+                newWorkSpace = newWorkSpace[:-1]
+            break
+
+        newWorkSpace += "{\"application\":"+"\""+app+"\""+","+"\"dir\":\""+dir+"\"},"
+
+    newWorkSpace += "]"
+            
+    rawData = json.dumps(data)
+    rawData = rawData[:-1] + newWorkSpace + "}"
+
+    #print(rawData)
+
+    data = json.loads(rawData)
+
+    ####### CHECK ######
+    json.dumps(data)
+
+    print bcolors.BOLD + "Added", workSpaceName + bcolors.ENDC
+    printWindows(data[workSpaceName])
+
+    return
+
+##########################
+def editWorkSpace(args):
+    global data
+    if len(args) != 2:
+        print bcolors.YELLOW + "\r  syntax: edit <WorkSpace name>" + bcolors.ENDC
+        return
+    
+    workSpaceName = args[1]
+    if workSpaceName not in data:
+        print bcolors.YELLOW + "\rWork Space", workSpaceName, "does not exist."
+        print "[help] for more about functions" + bcolors.ENDC
+        return
+    
+    print bcolors.OKBLUE + "\r  Work Space: ", workSpaceName + bcolors.ENDC
+    printWindows(data[workSpaceName])
+
+    while True:
+        print "\r EDIT: ",
+
+        line = sys.stdin.readline()
+        line = line[:-1]
+        args = line.split(" ")
+        
+        while "" in args:
+            args.remove("")
+        
+        if len(args) == 0:
+            continue
+        
+        command = args[0].lower()
+        
+        if command == "list" or command == "ls":
+            printWindows(data[workSpaceName])
+    
+        elif command == "add" or command == "+":
+            
+            newWindow = ""
+            if len(data[workSpaceName]) > 0:
+                newWindow +=","
+            
+            print "\r  Application: ",
+            app = sys.stdin.readline()[:-1]
+            print "\r  Directory: ",
+            dir = sys.stdin.readline()[:-1]
+            if dir == "":
+                #if newWorkSpace[-1:] == ",":
+                #    newWorkSpace = newWorkSpace[:-1]
+                continue
+            
+            newWindow += "{\"application\":"+"\""+app+"\""+","+"\"dir\":\""+dir+"\"}"
+
+            rawDataWindow = json.dumps(data[workSpaceName])
+            rawDataWindow = "\""+workSpaceName+"\":" + rawDataWindow
+            rawDataWindow = rawDataWindow[:-1] + newWindow + "]"
+
+            del data[workSpaceName]
+            rawData = json.dumps(data)
+
+            if len(data.keys()) > 0:
+                rawDataWindow = "," + rawDataWindow
+
+            rawData = rawData[:-1] + rawDataWindow + "}"
+                
+            data = json.loads(rawData)
+                
+        elif command == "rename":
+            print "New name: ",
+            newName = sys.stdin.readline()[:-1]
+            if newName == "":
+                continue
+            if newName != workSpaceName and newName in data.keys():
+                print bcolors.YELLOW + "Name already exist. Pick a different one." + bcolors.ENDC
+                continue
+            else:
+                rawData = json.dumps(data)
+                rawData = rawData.replace(workSpaceName, newName)
+                
+                data = json.loads(rawData)
+                workSpaceName = newName
+        
+        elif command == "remove":
+            print "Delete window number: ",
+            line = sys.stdin.readline()[:-1]
+            if line.isdigit():
+                num = int(line)
+                if num < 1 or num > len(data[workSpaceName]):
+                    print "Invalid index"
+                    continue
+                del data[workSpaceName][num-1:num]
+                
+        elif command == "done":
+            print "EDITED", workSpaceName
+            break
+    
+    return
+
+##########################
+def listWorkSpace(args):
+
+    flag = 0
+    workSpaceName = ""
+    
+    if len(args) == 2:
+        if args[1] == "-a":
+            flag = 1
+        else:
+            workSpaceName = args[1]
+            flag = 2
+
+    elif len(args) != 1:
+        print bcolors.YELLOW + "[help] for more about functions" + bcolors.ENDC
+        return
+    
+    if flag == 2:
+        if workSpaceName not in data:
+            print bcolors.YELLOW + "Work Space", workSpaceName, "does not exist." + bcolors.ENDC
+            return
+        
+        print bcolors.OKBLUE + " Work Space: ", workSpaceName + bcolors.ENDC
+        printWindows(data[workSpaceName])
+    
+    else:
+        keyList = sorted(data.keys(), key = lambda x: x.lower())
+        for key in keyList:
+            if key != "__ZERO_INDEX__":
+                print bcolors.OKBLUE + "\r ", key + bcolors.ENDC
+                if flag == 1:
+                    printWindows(data[key])
+
+    return
+
+##########################
+def helpMenu():
+    print bcolors.YELLOW + "\r  [add <WorkSpace name>]" + bcolors.ENDC + " to add new workspace"
+    print bcolors.YELLOW + "  [open <WorkSpace name>]" + bcolors.ENDC + " to open existing workspace"
+    print bcolors.YELLOW + "  [list < |-a|WorkSpace name>]" + bcolors.ENDC + " to see all workspaces"
+    print bcolors.YELLOW + "  [delete <WorkSpace name>" + bcolors.ENDC + " to delete existing workspace]"
+    print bcolors.YELLOW + "  [save]" + bcolors.ENDC + " to save the change(s) made"
+    print bcolors.YELLOW + "  [quit]" + bcolors.ENDC + " to terminate the program"
+
+    return
+
+##########################
+def deleteWorkSpace(args):
+    global data
+    if len(args) != 2:
+        print bcolors.YELLOW + "\r  syntax: delete <WorkSpace name>" + bcolors.ENDC
+        return
+        
+    workSpaceName = args[1]
+    if workSpaceName not in data:
+        print bcolors.YELLOW + "\rWork Space", workSpaceName, "does not exist."
+        print "[help] for more about functions" + bcolors.ENDC
+        return
+
+    print bcolors.FAIL + "Are you sure about deleting", workSpaceName, "(y/n)? This cannot be undone. " + bcolors.ENDC,
+    ans = sys.stdin.readline().lower()[:-1]
+        
+    if ans != "y":
+        print bcolors.YELLOW + "Action aborted." + bcolors.ENDC
+        return
+
+    del data[workSpaceName]
+    print "Workspace " + bcolors.OKBLUE + bcolors.BOLD + workSpaceName + bcolors.ENDC + " is deleted"
+
+    return
+
+##########################
+def processSpace(dir):
+    spaceInd = -2
+    while True:
+        spaceInd = dir.find(' ', spaceInd+2)
+        if spaceInd == -1:
+            break
+        dir = dir[:spaceInd] + "\\" + dir[spaceInd:]
+    return dir
+
+##########################
+# Main function
+def main():
+    
+    global data
+    data = getWorkSpace()
+    
+    while True:
+        print "\r> ",
+        line = sys.stdin.readline()
+        line = line[:-1]
+        args = line.split(" ")
+        
+        while "" in args:
+            args.remove("")
+        
+        if len(args) == 0:
+            continue
+        
+        command = args[0].lower()
+        
+        if command == "open":
+            openWorkSpace(args)
+        
+        elif command == "add":
+            addWorkSpace(args)
+        
+        elif command == "delete" or command == "del":
+            deleteWorkSpace(args)
+        
+        elif command == "list" or command == "ls":
+            listWorkSpace(args)
+
+        elif command == "edit":
+            editWorkSpace(args)
+        
+        elif command == "save":
+            rawData = "{\"data\":"+json.dumps(data)+"}"
+            f = open('.sys/data.txt', 'w')
+            f.write(rawData)
+            f.close()
+            print "\r",
+        
+        elif command == "help":
+            helpMenu()
+        
+        elif command == "quit":
+            print bcolors.FAIL + "\r  Unsaved changes will be lost. [save] to save your changes before leaving."
+            print "  Quit(y/n)? " + bcolors.ENDC,
+            if sys.stdin.readline()[:-1].lower() != "y":
+                continue
+            print bcolors.OKBLUE + "\r  Goodbye!" + bcolors.ENDC
+            break
+
+    return
+
+##########################
+if __name__ == '__main__':
+    main()
+
