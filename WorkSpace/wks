@@ -6,6 +6,8 @@ import urllib2
 import json
 
 data = {}
+archived = {}
+
 
 class bcolors:
     HEADER = '\033[95m'
@@ -19,13 +21,15 @@ class bcolors:
 
 ##########################
 def  getWorkSpace():
-    
+    global data, archived
     f = open('/Users/duynhan/.tools/WorkSpace/.sys/data.txt', 'r')
     info = f.read()
     
-    data = json.loads(info)
+    wks = json.loads(info)
     f.close()
-    return data["data"]
+    
+    data = wks["data"]
+    archived = wks["archived"]
 
 ##########################
 def printWindows(workSpace, flag="default"):
@@ -76,14 +80,31 @@ def addWorkSpace(args):
     newWorkSpace = ",\""+workSpaceName+"\":["
             
     while True:
-        print "Application: ",
+        print "\r  Application: ",
         app = sys.stdin.readline()[:-1]
-        print "Directory: ",
+        print "\r  Directory: ",
         dir = sys.stdin.readline()[:-1]
+        
         if dir == "":
             if newWorkSpace[-1:] == ",":
                 newWorkSpace = newWorkSpace[:-1]
             break
+        
+        spacesCount = 0
+        while app[-1 + spacesCount] == ' ':
+            spacesCount-=1
+        if spacesCount<0 : app = app[: spacesCount]
+        
+        spacesCount = 0
+        while dir[-1 + spacesCount] == ' ':
+            spacesCount-=1
+        if spacesCount<0 : dir = dir[: spacesCount]
+        
+        st = -1
+        while dir.find("\\", st+1) != -1:
+            st = dir.find("\\", st+1)
+            dir = dir[:st] + dir[st+1:]
+
 
         newWorkSpace += "{\"application\":"+"\""+app+"\""+","+"\"dir\":\""+dir+"\"},"
 
@@ -149,9 +170,17 @@ def editWorkSpace(args):
             print "\r  Directory: ",
             dir = sys.stdin.readline()[:-1]
             if dir == "":
-                #if newWorkSpace[-1:] == ",":
-                #    newWorkSpace = newWorkSpace[:-1]
                 continue
+
+            spacesCount = 0
+            while app[-1 + spacesCount] == ' ':
+                spacesCount-=1
+                if spacesCount<0 : app = app[: spacesCount]
+
+            spacesCount = 0
+            while dir[-1 + spacesCount] == ' ':
+                spacesCount-=1
+            if spacesCount<0 : dir = dir[: spacesCount]
             
             newWindow += "{\"application\":"+"\""+app+"\""+","+"\"dir\":\""+dir+"\"}"
 
@@ -201,7 +230,14 @@ def editWorkSpace(args):
     return
 
 ##########################
-def listWorkSpace(args):
+def listWorkSpace(args, table = 0):
+    
+    if table == 0:
+        wks = data
+        print "Working Spaces"
+    else:
+        wks = archived
+        print "Archived Spaces"
 
     flag = 0
     workSpaceName = ""
@@ -218,33 +254,46 @@ def listWorkSpace(args):
         return
     
     if flag == 2:
-        if workSpaceName not in data:
+        if workSpaceName not in wks:
             print bcolors.YELLOW + "Work Space", workSpaceName, "does not exist." + bcolors.ENDC
             return
         
         print bcolors.OKBLUE + " Work Space: ", workSpaceName + bcolors.ENDC
-        printWindows(data[workSpaceName])
+        printWindows(wks[workSpaceName])
     
     else:
-        keyList = sorted(data.keys(), key = lambda x: x.lower())
+        keyList = sorted(wks.keys(), key = lambda x: x.lower())
         for key in keyList:
             if key != "__ZERO_INDEX__":
                 print bcolors.OKBLUE + "\r ", key + bcolors.ENDC
                 if flag == 1:
-                    printWindows(data[key])
+                    printWindows(wks[key])
 
     return
 
-##########################
-def helpMenu():
-    print bcolors.YELLOW + "\r  [add <WorkSpace name>]" + bcolors.ENDC + " to add new workspace"
-    print bcolors.YELLOW + "  [open <WorkSpace name>]" + bcolors.ENDC + " to open existing workspace"
-    print bcolors.YELLOW + "  [list < |-a|WorkSpace name>]" + bcolors.ENDC + " to see all workspaces"
-    print bcolors.YELLOW + "  [delete <WorkSpace name>" + bcolors.ENDC + " to delete existing workspace]"
-    print bcolors.YELLOW + "  [save]" + bcolors.ENDC + " to save the change(s) made"
-    print bcolors.YELLOW + "  [quit]" + bcolors.ENDC + " to terminate the program"
+def archiveWorkSpace(args):
+    global data, archived
+    if len(args) != 2:
+        print bcolors.YELLOW + "\r  syntax: archive <WorkSpace name>" + bcolors.ENDC
+        return
+
+    workSpaceName = args[1]
+    if workSpaceName not in data:
+        print bcolors.YELLOW + "\rWork Space", workSpaceName, "does not exist."
+        print "[help] for more about functions" + bcolors.ENDC
+        return
+    
+    archived[workSpaceName] = data[workSpaceName]
+    del data[workSpaceName]
+
+    print workSpaceName, "is archived"
 
     return
+
+def retrieveWorkSpace(args):
+    print("Coming soon")
+    return
+
 
 ##########################
 def deleteWorkSpace(args):
@@ -272,6 +321,19 @@ def deleteWorkSpace(args):
     return
 
 ##########################
+def helpMenu():
+    print bcolors.YELLOW + "\r  [add <Workspace name>]" + bcolors.ENDC + " to add new workspace"
+    print bcolors.YELLOW + "  [open <Workspace name>]" + bcolors.ENDC + " to open existing workspace"
+    print bcolors.YELLOW + "  [list < |-a|Workspace name>]" + bcolors.ENDC + " to see all workspaces"
+    print bcolors.YELLOW + "  [delete <Workspace name>" + bcolors.ENDC + " to delete existing workspace]"
+    print bcolors.YELLOW + "  [save]" + bcolors.ENDC + " to save the change(s) made"
+    print bcolors.YELLOW + "  [edit <Workspace name>]" + bcolors.ENDC + " to edit a workspace"
+    print bcolors.YELLOW + "  [archive <Workspace name>]" + bcolors.ENDC + " to archive a workspace"
+    print bcolors.YELLOW + "  [quit]" + bcolors.ENDC + " to terminate a workspace"
+    
+    return
+
+##########################
 def processSpace(dir):
     spaceInd = -2
     while True:
@@ -286,10 +348,10 @@ def processSpace(dir):
 def main():
     
     global data
-    data = getWorkSpace()
+    getWorkSpace()
     
     while True:
-        print "\r> ",
+        print "\r>> ",
         line = sys.stdin.readline()
         line = line[:-1]
         args = line.split(" ")
@@ -313,16 +375,25 @@ def main():
         
         elif command == "list" or command == "ls":
             listWorkSpace(args)
+        
+        elif command == "listarchive" or command == "la":
+            listWorkSpace(args, 1)
 
         elif command == "edit":
             editWorkSpace(args)
         
         elif command == "save":
-            rawData = "{\"data\":"+json.dumps(data)+"}"
-            f = open('.sys/data.txt', 'w')
+            rawData = "{\"data\":"+json.dumps(data)+",\"archived\":"+json.dumps(archived)+"}"
+            f = open('/Users/duynhan/.tools/WorkSpace/.sys/data.txt', 'w')
             f.write(rawData)
             f.close()
             print "\r",
+        
+        elif command == "archive":
+            archiveWorkSpace(args)
+        
+        elif command == "retrieve":
+            retrieveWorkSpace(args)
         
         elif command == "help":
             helpMenu()
@@ -334,7 +405,13 @@ def main():
                 continue
             print bcolors.OKBLUE + "\r  Goodbye!" + bcolors.ENDC
             break
+                
+        elif command == "admineditprogram":
+            os.system("open -a Xcode /Users/duynhan/.tools/WorkSpace/wks")
 
+        elif command == "openhiddendatabase":
+            os.system("open /Users/duynhan/.tools/WorkSpace/.sys/data.txt")
+    
     return
 
 ##########################
