@@ -91,7 +91,7 @@ def addWorkSpace(args):
             break
         
         spacesCount = 0
-        while app[-1 + spacesCount] == ' ':
+        while (spacesCount - 1) >= -len(app) and app[-1 + spacesCount] == ' ':
             spacesCount-=1
         if spacesCount<0 : app = app[: spacesCount]
         
@@ -321,6 +321,16 @@ def deleteWorkSpace(args):
     return
 
 ##########################
+def saveData():
+    global data, archived
+    
+    rawData = "{\"data\":"+json.dumps(data)+",\"archived\":"+json.dumps(archived)+"}"
+    f = open('/Users/duynhan/.tools/WorkSpace/.sys/data.txt', 'w')
+    f.write(rawData)
+    f.close()
+    print "\r",
+
+##########################
 def helpMenu():
     print bcolors.YELLOW + "\r  [add <Workspace name>]" + bcolors.ENDC + " to add new workspace"
     print bcolors.YELLOW + "  [open <Workspace name>]" + bcolors.ENDC + " to open existing workspace"
@@ -383,11 +393,7 @@ def main():
             editWorkSpace(args)
         
         elif command == "save":
-            rawData = "{\"data\":"+json.dumps(data)+",\"archived\":"+json.dumps(archived)+"}"
-            f = open('/Users/duynhan/.tools/WorkSpace/.sys/data.txt', 'w')
-            f.write(rawData)
-            f.close()
-            print "\r",
+            saveData()
         
         elif command == "archive":
             archiveWorkSpace(args)
@@ -399,12 +405,21 @@ def main():
             helpMenu()
         
         elif command == "quit":
-            print bcolors.FAIL + "\r  Unsaved changes will be lost. [save] to save your changes before leaving."
-            print "  Quit(y/n)? " + bcolors.ENDC,
-            if sys.stdin.readline()[:-1].lower() != "y":
+            print bcolors.YELLOW + "\r  Unsaved changes will be lost."
+            print "  Save (y/n)? " + bcolors.ENDC,
+            isSaved = sys.stdin.readline()[:-1].lower()
+            if isSaved not in "yn":
                 continue
+            if isSaved == "y":
+                saveData()
+                print "\r  SAVED"
+            else:
+                print bcolors.FAIL + "\r  NOT SAVED" + bcolors.ENDC
+    
             print bcolors.OKBLUE + "\r  Goodbye!" + bcolors.ENDC
             break
+
+                
                 
         elif command == "admineditprogram":
             os.system("open -a Xcode /Users/duynhan/.tools/WorkSpace/wks")
